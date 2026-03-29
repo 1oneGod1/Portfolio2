@@ -101,6 +101,15 @@ export const teachingFocus = [
 
 export const projects = [
   {
+    category: "Web & Education",
+    title: "Aplikasi Buku Nilai Informatika",
+    description:
+      "Aplikasi web untuk mengelola nilai siswa dengan Firebase Realtime Database. Fitur: CRUD nilai, email verification untuk guru, pencarian nilai siswa real-time, import/export Excel, dan dashboard admin.",
+    icon: "book-marked",
+    tags: ["Firebase", "JavaScript", "Tailwind CSS", "Realtime Database", "Email Verification"],
+    link: "https://nilai-informatika.web.app",
+  },
+  {
     category: "Web & Networking",
     title: "Aplikasi Manajemen Laboratorium Komputer",
     description:
