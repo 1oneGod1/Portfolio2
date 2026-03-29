@@ -1,4 +1,4 @@
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect, useRef, useCallback } = React;
 
 const profile = {
   name: "Andi",
@@ -246,6 +246,12 @@ function App() {
               50% { transform: translateY(-10px); }
             }
             .animate-float-fast { animation: float-fast 4s ease-in-out infinite; }
+
+            @keyframes fade-in {
+              from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+              to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+            .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
           `,
         }}
       />
@@ -569,35 +575,91 @@ function App() {
           </RevealOnScroll>
 
           <div className="grid md:grid-cols-3 gap-10">
-            {projects.map((project, idx) => (
-              <RevealOnScroll key={project.title} delay={200 + idx * 100} direction="up">
-                <div
-                  className={`group bg-slate-900/50 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 overflow-hidden flex flex-col hover:-translate-y-4 transition-all duration-500 h-full ${
-                    glowClass[project.glow]
-                  }`}
-                >
-                  <div className="h-64 bg-slate-950 relative overflow-hidden flex justify-center items-center border-b border-white/5">
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent mix-blend-overlay group-hover:opacity-100 transition-opacity duration-500"></div>
-                    <Icon name={project.icon} className="h-[90px] w-[90px] text-slate-700 group-hover:text-white group-hover:scale-125 transition-all duration-700 relative z-10 drop-shadow-2xl" />
-                  </div>
-                  <div className="p-10 flex-grow flex flex-col">
-                    <div className="flex items-center gap-3 mb-5">
-                      <span className={`w-3 h-3 rounded-full ${dotClass[project.glow].split(" ")[0]} ${dotClass[project.glow].split(" ")[1]}`}></span>
-                      <span className={`text-sm font-bold uppercase tracking-widest ${dotClass[project.glow].split(" ")[2]}`}>{project.category}</span>
+            {projects.map((project, idx) => {
+              const [isHovered, setIsHovered] = useState(false);
+              const [showPreview, setShowPreview] = useState(false);
+              const hoverTimeoutRef = useRef(null);
+              
+              const handleMouseEnter = () => {
+                setIsHovered(true);
+                if (project.previewUrl || project.link) {
+                  hoverTimeoutRef.current = setTimeout(() => {
+                    setShowPreview(true);
+                  }, 500);
+                }
+              };
+              
+              const handleMouseLeave = () => {
+                setIsHovered(false);
+                setShowPreview(false);
+                if (hoverTimeoutRef.current) {
+                  clearTimeout(hoverTimeoutRef.current);
+                }
+              };
+              
+              return (
+                <RevealOnScroll key={project.title} delay={200 + idx * 100} direction="up">
+                  <div
+                    className={`group relative bg-slate-900/50 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 overflow-hidden flex flex-col hover:-translate-y-4 transition-all duration-500 h-full ${
+                      glowClass[project.glow]
+                    }`}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                    onClick={() => project.link && window.open(project.link, '_blank')}
+                    style={{ cursor: project.link ? 'pointer' : 'default' }}
+                  >
+                    {/* Preview Iframe Popup */}
+                    {showPreview && (project.previewUrl || project.link) && (
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[calc(100%+20px)] z-50 w-[320px] h-[200px] rounded-2xl overflow-hidden border-2 border-white/20 shadow-[0_20px_60px_rgba(0,0,0,0.5)] animate-fade-in">
+                        <div className="absolute top-2 left-2 right-2 flex items-center justify-between z-10 bg-black/60 backdrop-blur-sm rounded-lg px-3 py-1.5">
+                          <span className="text-xs text-white/80 font-medium truncate max-w-[200px]">{project.title}</span>
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                            <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                          </div>
+                        </div>
+                        <iframe
+                          src={project.previewUrl || project.link}
+                          className="w-full h-full bg-slate-950"
+                          sandbox="allow-scripts allow-same-origin"
+                          loading="lazy"
+                          title={`Preview ${project.title}`}
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-slate-950/90 to-transparent"></div>
+                      </div>
+                    )}
+                    
+                    {/* Click hint for projects with link */}
+                    {isHovered && project.link && (
+                      <div className="absolute top-4 right-4 z-20 bg-sky-500/20 backdrop-blur-sm border border-sky-500/30 rounded-full p-2 animate-pulse">
+                        <Icon name="external-link" className="h-5 w-5 text-sky-400" />
+                      </div>
+                    )}
+                    
+                    <div className="h-64 bg-slate-950 relative overflow-hidden flex justify-center items-center border-b border-white/5">
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent mix-blend-overlay group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <Icon name={project.icon} className="h-[90px] w-[90px] text-slate-700 group-hover:text-white group-hover:scale-125 transition-all duration-700 relative z-10 drop-shadow-2xl" />
                     </div>
-                    <h3 className="text-2xl font-bold mb-4 text-white">{project.title}</h3>
-                    <p className="text-slate-400 mb-8 flex-grow leading-relaxed font-light text-lg">{project.description}</p>
-                    <div className="flex flex-wrap gap-3 mt-auto">
-                      {project.tags.map((tag) => (
-                        <span key={tag} className={`px-4 py-2 text-sm font-semibold border rounded-xl ${dotClass[project.glow].split(" ").slice(2).join(" ")}`}>
-                          {tag}
-                        </span>
-                      ))}
+                    <div className="p-10 flex-grow flex flex-col">
+                      <div className="flex items-center gap-3 mb-5">
+                        <span className={`w-3 h-3 rounded-full ${dotClass[project.glow].split(" ")[0]} ${dotClass[project.glow].split(" ")[1]}`}></span>
+                        <span className={`text-sm font-bold uppercase tracking-widest ${dotClass[project.glow].split(" ")[2]}`}>{project.category}</span>
+                      </div>
+                      <h3 className="text-2xl font-bold mb-4 text-white">{project.title}</h3>
+                      <p className="text-slate-400 mb-8 flex-grow leading-relaxed font-light text-lg">{project.description}</p>
+                      <div className="flex flex-wrap gap-3 mt-auto">
+                        {project.tags.map((tag) => (
+                          <span key={tag} className={`px-4 py-2 text-sm font-semibold border rounded-xl ${dotClass[project.glow].split(" ").slice(2).join(" ")}`}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </RevealOnScroll>
-            ))}
+                </RevealOnScroll>
+              );
+            })}
           </div>
         </div>
       </section>
