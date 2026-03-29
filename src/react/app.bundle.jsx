@@ -48,6 +48,7 @@ const projects = [
     category: "Web & Education",
     title: "Aplikasi Buku Nilai Informatika",
     icon: "book-marked",
+    image: "assets/img/project-nilai-informatika.png",
     glow: "emerald",
     description:
       "Aplikasi web untuk mengelola nilai siswa dengan Firebase Realtime Database. Fitur: CRUD nilai, email verification untuk guru, pencarian nilai siswa real-time, import/export Excel, dan dashboard admin.",
@@ -608,11 +609,11 @@ function App() {
                     onClick={() => project.link && window.open(project.link, '_blank')}
                     style={{ cursor: project.link ? 'pointer' : 'default' }}
                   >
-                    {/* Preview Iframe Popup */}
+                    {/* Preview Iframe Popup - Larger Size */}
                     {showPreview && (project.previewUrl || project.link) && (
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[calc(100%+20px)] z-50 w-[320px] h-[200px] rounded-2xl overflow-hidden border-2 border-white/20 shadow-[0_20px_60px_rgba(0,0,0,0.5)] animate-fade-in">
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[calc(100%+20px)] z-50 w-[400px] h-[280px] rounded-2xl overflow-hidden border-2 border-white/20 shadow-[0_20px_60px_rgba(0,0,0,0.5)] animate-fade-in">
                         <div className="absolute top-2 left-2 right-2 flex items-center justify-between z-10 bg-black/60 backdrop-blur-sm rounded-lg px-3 py-1.5">
-                          <span className="text-xs text-white/80 font-medium truncate max-w-[200px]">{project.title}</span>
+                          <span className="text-xs text-white/80 font-medium truncate max-w-[280px]">{project.title}</span>
                           <div className="flex items-center gap-1.5">
                             <div className="w-2 h-2 rounded-full bg-red-500"></div>
                             <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
@@ -639,7 +640,15 @@ function App() {
                     
                     <div className="h-64 bg-slate-950 relative overflow-hidden flex justify-center items-center border-b border-white/5">
                       <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent mix-blend-overlay group-hover:opacity-100 transition-opacity duration-500"></div>
-                      <Icon name={project.icon} className="h-[90px] w-[90px] text-slate-700 group-hover:text-white group-hover:scale-125 transition-all duration-700 relative z-10 drop-shadow-2xl" />
+                      {project.image ? (
+                        <img
+                          src={project.image}
+                          alt={project.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                      ) : (
+                        <Icon name={project.icon} className="h-[90px] w-[90px] text-slate-700 group-hover:text-white group-hover:scale-125 transition-all duration-700 relative z-10 drop-shadow-2xl" />
+                      )}
                     </div>
                     <div className="p-10 flex-grow flex flex-col">
                       <div className="flex items-center gap-3 mb-5">
