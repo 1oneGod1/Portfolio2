@@ -52,7 +52,9 @@ const projects = [
     description:
       "Platform Learning Management System (LMS) dengan arsitektur hybrid Laravel Backend + Firebase Frontend. Mendukung portal siswa (dashboard, eksplor kelas, ruang belajar video, tugas & kuis, forum diskusi) dan dashboard instruktur (course builder, analitik performa, manajemen siswa & penilaian, pendapatan).",
     tags: ["Laravel", "PHP 8.x", "Firebase", "Firestore", "Tailwind CSS", "LMS"],
-    link: "https://github.com/1oneGod1/AkuBisa",
+    image: "assets/img/project-akubisa.png",
+    previewUrl: "https://akubisa.onrender.com",
+    link: "https://akubisa.onrender.com",
   },
   {
     category: "Web & Education",
