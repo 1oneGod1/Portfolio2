@@ -101,6 +101,15 @@ export const teachingFocus = [
 
 export const projects = [
   {
+    category: "EdTech / LMS",
+    title: "AkuBisa! LMS",
+    description:
+      "Platform Learning Management System (LMS) dengan arsitektur hybrid Laravel Backend + Firebase Frontend. Mendukung portal siswa (dashboard, eksplor kelas, ruang belajar video, tugas & kuis, forum diskusi) dan dashboard instruktur (course builder, analitik performa, manajemen siswa & penilaian, pendapatan).",
+    icon: "graduation-cap",
+    tags: ["Laravel", "PHP 8.x", "Firebase", "Firestore", "Tailwind CSS", "LMS"],
+    link: "https://github.com/1oneGod1/AkuBisa",
+  },
+  {
     category: "Web & Education",
     title: "Aplikasi Buku Nilai Informatika",
     description:
