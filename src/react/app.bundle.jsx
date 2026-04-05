@@ -432,6 +432,13 @@ function App() {
   const canvasRef = useRef(null);
   const [active, setActive] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [backgroundEnabled, setBackgroundEnabled] = useState(() => {
+    try {
+      return window.localStorage.getItem("andi-background-enabled") !== "false";
+    } catch (_error) {
+      return true;
+    }
+  });
 
   const sectionIds = useMemo(() => ["home", "about", "skills", "teaching", "projects", "certifications", "contact"], []);
 
@@ -443,6 +450,35 @@ function App() {
       target.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
+
+  const toggleBackground = () => {
+    setBackgroundEnabled((prev) => !prev);
+  };
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("andi-background-enabled", backgroundEnabled ? "true" : "false");
+    } catch (_error) {
+      // Ignore storage failures in private browsing or restricted environments.
+    }
+  }, [backgroundEnabled]);
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+      if ((event.key || "").toLowerCase() !== "b") return;
+
+      const target = event.target;
+      const tagName = target && target.tagName ? target.tagName.toLowerCase() : "";
+      const isEditable = (target && target.isContentEditable) || tagName === "input" || tagName === "textarea" || tagName === "select";
+      if (isEditable) return;
+
+      setBackgroundEnabled((prev) => !prev);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -465,7 +501,11 @@ function App() {
   }, [sectionIds]);
 
   useEffect(() => {
-    if (!window.THREE || !canvasRef.current) return undefined;
+    if (!canvasRef.current) return undefined;
+    if (!backgroundEnabled || !window.THREE) {
+      canvasRef.current.innerHTML = "";
+      return undefined;
+    }
 
     const { THREE } = window;
     const scene = new THREE.Scene();
@@ -642,23 +682,30 @@ function App() {
         renderer.domElement.parentNode.removeChild(renderer.domElement);
       }
     };
-  }, []);
+  }, [backgroundEnabled]);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#020305] text-zinc-200 selection:bg-emerald-500 selection:text-black">
       <style dangerouslySetInnerHTML={{ __html: themeCss }} />
 
-      <div className="scanlines"></div>
-      <div className="screen-vignette"></div>
+      {backgroundEnabled ? <div className="scanlines"></div> : null}
+      {backgroundEnabled ? <div className="screen-vignette"></div> : null}
 
-      <div className="fixed top-4 left-4 z-50 hud-text hidden md:block">SYS.COORD: 34.0522 N, 118.2437 W<br />MEM: 84% ALLOCATED</div>
-      <div className="fixed top-4 right-4 z-50 hud-text text-right hidden md:block">UPLINK: SECURE<br />LATENCY: 12ms</div>
-      <div className="fixed bottom-4 left-4 z-50 hud-text hidden md:block">USER: ANDI_ADMIN<br />ACCESS: GRANTED</div>
-      <div className="fixed bottom-4 right-4 z-50 hud-text text-right hidden md:block border-b border-emerald-500 pb-1">
-        <span className="animate-pulse text-red-500">REC</span> // 00:00:00
-      </div>
+      {backgroundEnabled ? <div className="fixed top-4 left-4 z-50 hud-text hidden md:block">SYS.COORD: 34.0522 N, 118.2437 W<br />MEM: 84% ALLOCATED</div> : null}
+      {backgroundEnabled ? <div className="fixed top-4 right-4 z-50 hud-text text-right hidden md:block">UPLINK: SECURE<br />LATENCY: 12ms</div> : null}
+      {backgroundEnabled ? <div className="fixed bottom-4 left-4 z-50 hud-text hidden md:block">USER: ANDI_ADMIN<br />ACCESS: GRANTED</div> : null}
+      {backgroundEnabled ? (
+        <div className="fixed bottom-4 right-4 z-50 hud-text text-right hidden md:block border-b border-emerald-500 pb-1">
+          <span className="animate-pulse text-red-500">REC</span> // 00:00:00
+        </div>
+      ) : null}
 
-      <div id="canvas-container" ref={canvasRef} className="fixed top-0 left-0 w-full h-full z-0 pointer-events-none" aria-hidden="true"></div>
+      <div
+        id="canvas-container"
+        ref={canvasRef}
+        className={`fixed top-0 left-0 w-full h-full pointer-events-none transition-opacity duration-300 ${backgroundEnabled ? "z-0 opacity-100" : "-z-10 opacity-0"}`}
+        aria-hidden="true"
+      ></div>
 
       <nav className="fixed top-0 z-40 w-full bg-black/60 backdrop-blur-md border-b border-emerald-500/30">
         <div className="mx-auto max-w-7xl px-5 py-3 flex items-center justify-between">
@@ -683,15 +730,31 @@ function App() {
             ))}
           </div>
 
-          <button className="md:hidden text-emerald-500" onClick={() => setMenuOpen((prev) => !prev)} aria-label="Open navigation menu">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleBackground}
+              title="Shortcut: B"
+              className="hidden md:inline-flex items-center px-3 py-1.5 text-[11px] font-mono uppercase tracking-widest border border-emerald-500/50 text-emerald-300 bg-black/40 hover:bg-emerald-500/10 transition"
+            >
+              BG: {backgroundEnabled ? "ON" : "OFF"}
+            </button>
+
+            <button className="md:hidden text-emerald-500" onClick={() => setMenuOpen((prev) => !prev)} aria-label="Open navigation menu">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {menuOpen ? (
           <div className="md:hidden border-t border-emerald-500/20 bg-black/90 px-5 py-3 flex flex-col gap-2 font-mono text-xs uppercase tracking-wider text-gray-300">
+            <button
+              onClick={toggleBackground}
+              className="text-left py-2 px-3 border border-emerald-500/40 text-emerald-300"
+            >
+              [ Background: {backgroundEnabled ? "ON" : "OFF"} ]
+            </button>
             {navItems.map((item) => (
               <button
                 key={item.id}
@@ -705,7 +768,7 @@ function App() {
         ) : null}
       </nav>
 
-      <main className="relative z-10 pt-20 mix-blend-screen">
+      <main className={`relative z-10 pt-20 ${backgroundEnabled ? "mix-blend-screen" : ""}`}>
         <section id="home" className="min-h-screen flex flex-col items-center justify-center px-6 relative">
           <div className="text-center max-w-4xl z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-500/10 border border-red-500/50 text-red-400 font-mono text-xs mb-6 mecha-panel">
