@@ -166,7 +166,11 @@ const themeCss = `
 
   body {
     font-family: 'Nunito', sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
     background-color: var(--dark-bg);
+    color: #e0e0e0;
   }
 
   .anime-font { font-family: 'M PLUS Rounded 1c', sans-serif; }
@@ -181,9 +185,9 @@ const themeCss = `
     background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%),
       linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04));
     background-size: 100% 4px, 3px 100%;
-    z-index: 70;
+    z-index: 9999;
     pointer-events: none;
-    opacity: 0.65;
+    opacity: 0.7;
   }
 
   .screen-vignette {
@@ -193,7 +197,7 @@ const themeCss = `
     width: 100vw;
     height: 100vh;
     background: radial-gradient(circle, rgba(0,0,0,0) 50%, rgba(0,0,0,0.85) 100%);
-    z-index: 69;
+    z-index: 9998;
     pointer-events: none;
     animation: flicker 0.2s infinite;
   }
@@ -312,24 +316,38 @@ const themeCss = `
 
   @keyframes glitch-anim {
     0% { clip: rect(10px, 9999px, 86px, 0); }
+    5% { clip: rect(61px, 9999px, 6px, 0); }
+    10% { clip: rect(31px, 9999px, 93px, 0); }
+    15% { clip: rect(87px, 9999px, 14px, 0); }
+    20% { clip: rect(11px, 9999px, 88px, 0); }
     25% { clip: rect(54px, 9999px, 32px, 0); }
+    30% { clip: rect(98px, 9999px, 4px, 0); }
+    35% { clip: rect(1px, 9999px, 76px, 0); }
+    40% { clip: rect(33px, 9999px, 43px, 0); }
+    45% { clip: rect(92px, 9999px, 67px, 0); }
     50% { clip: rect(72px, 9999px, 54px, 0); }
-    75% { clip: rect(12px, 9999px, 66px, 0); }
     100% { clip: rect(72px, 9999px, 54px, 0); }
   }
 
   @keyframes glitch-anim2 {
     0% { clip: rect(65px, 9999px, 100px, 0); }
+    5% { clip: rect(5px, 9999px, 74px, 0); }
+    10% { clip: rect(43px, 9999px, 33px, 0); }
+    15% { clip: rect(76px, 9999px, 10px, 0); }
+    20% { clip: rect(22px, 9999px, 85px, 0); }
     25% { clip: rect(88px, 9999px, 45px, 0); }
+    30% { clip: rect(12px, 9999px, 66px, 0); }
+    35% { clip: rect(55px, 9999px, 2px, 0); }
+    40% { clip: rect(99px, 9999px, 55px, 0); }
+    45% { clip: rect(34px, 9999px, 87px, 0); }
     50% { clip: rect(21px, 9999px, 12px, 0); }
-    75% { clip: rect(99px, 9999px, 55px, 0); }
     100% { clip: rect(21px, 9999px, 12px, 0); }
   }
 
   .blinking-cursor {
     display: inline-block;
-    width: 10px;
-    height: 1.05em;
+    width: 12px;
+    height: 1.2em;
     background-color: var(--neon-green);
     animation: blink 1s step-end infinite;
     vertical-align: text-bottom;
@@ -459,7 +477,7 @@ function App() {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(window.devicePixelRatio || 1);
     canvasRef.current.innerHTML = "";
     canvasRef.current.appendChild(renderer.domElement);
 
@@ -592,7 +610,7 @@ function App() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setPixelRatio(window.devicePixelRatio || 1);
     };
 
     document.addEventListener("mousemove", onMouseMove);
@@ -633,16 +651,16 @@ function App() {
       <div className="scanlines"></div>
       <div className="screen-vignette"></div>
 
-      <div className="fixed top-4 left-4 z-[80] hud-text hidden md:block">SYS.COORD: 34.0522 N, 118.2437 W<br />MEM: 84% ALLOCATED</div>
-      <div className="fixed top-4 right-4 z-[80] hud-text text-right hidden md:block">UPLINK: SECURE<br />LATENCY: 12ms</div>
-      <div className="fixed bottom-4 left-4 z-[80] hud-text hidden md:block">USER: ANDI_ADMIN<br />ACCESS: GRANTED</div>
-      <div className="fixed bottom-4 right-4 z-[80] hud-text text-right hidden md:block border-b border-emerald-500 pb-1">
+      <div className="fixed top-4 left-4 z-50 hud-text hidden md:block">SYS.COORD: 34.0522 N, 118.2437 W<br />MEM: 84% ALLOCATED</div>
+      <div className="fixed top-4 right-4 z-50 hud-text text-right hidden md:block">UPLINK: SECURE<br />LATENCY: 12ms</div>
+      <div className="fixed bottom-4 left-4 z-50 hud-text hidden md:block">USER: ANDI_ADMIN<br />ACCESS: GRANTED</div>
+      <div className="fixed bottom-4 right-4 z-50 hud-text text-right hidden md:block border-b border-emerald-500 pb-1">
         <span className="animate-pulse text-red-500">REC</span> // 00:00:00
       </div>
 
-      <div ref={canvasRef} className="fixed inset-0 -z-10 pointer-events-none" aria-hidden="true"></div>
+      <div id="canvas-container" ref={canvasRef} className="fixed top-0 left-0 w-full h-full z-0 pointer-events-none" aria-hidden="true"></div>
 
-      <nav className="fixed top-0 z-50 w-full bg-black/60 backdrop-blur-md border-b border-emerald-500/30">
+      <nav className="fixed top-0 z-40 w-full bg-black/60 backdrop-blur-md border-b border-emerald-500/30">
         <div className="mx-auto max-w-7xl px-5 py-3 flex items-center justify-between">
           <button className="text-left" onClick={() => scrollToSection("home")}>
             <div className="text-2xl font-bold anime-font text-emerald-400 tracking-wider flex items-center gap-2">
